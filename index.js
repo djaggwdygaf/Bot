@@ -5,6 +5,46 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+// Add basic web server for health checks (required for Render.com)
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Discord Music Bot is running!',
+        status: 'online',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        version: '1.0.0'
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'healthy',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        memory: process.memoryUsage(),
+        pid: process.pid
+    });
+});
+
+// Start server immediately
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Health check server running on port ${PORT}`);
+    console.log(`📡 Server accessible at http://0.0.0.0:${PORT}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully...');
+    server.close(() => {
+        console.log('✅ HTTP server closed');
+        process.exit(0);
+    });
+});
+
 // Create Discord client
 const client = new Client({
     intents: [
@@ -57,12 +97,12 @@ for (const file of eventFiles) {
 player.events.on('playerStart', (queue, track) => {
     const { createNowPlayingEmbed } = require('./utils/embeds');
     const { createMusicControlButtons } = require('./utils/buttons');
-    
+
     // Delete previous nowplaying message if it exists
     if (queue.metadata && queue.metadata.nowPlayingMessage) {
         queue.metadata.nowPlayingMessage.delete().catch(console.error);
     }
-    
+
     if (queue.metadata && queue.metadata.channel) {
         queue.metadata.channel.send({
             embeds: [createNowPlayingEmbed(track)],
@@ -104,7 +144,7 @@ player.events.on('emptyQueue', (queue) => {
         queue.metadata.nowPlayingMessage.delete().catch(console.error);
         queue.metadata.nowPlayingMessage = null;
     }
-    
+
     if (queue.metadata && queue.metadata.channel) {
         const embed = {
             color: 0xffff00,
