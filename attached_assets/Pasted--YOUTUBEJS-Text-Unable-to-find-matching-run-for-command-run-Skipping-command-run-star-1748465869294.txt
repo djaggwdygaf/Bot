@@ -1,0 +1,55 @@
+[YOUTUBEJS][Text]: Unable to find matching run for command run. Skipping... {
+  command_run: { startIndex: 0, length: 76, onTap: { innertubeCommand: [Object] } },
+  input_data: {
+    content: 'TỦI DUYÊN - HANA CẨM TIÊN x STAR ONLINE | OFFICIAL MUSIC VIDEO · 3:37',
+    commandRuns: [ [Object] ]
+  },
+  parsed_runs: [
+    {
+      text: 'TỦI DUYÊN - HANA CẨM TIÊN x STAR ONLINE | OFFICIAL MUSIC VIDEO · 3:37',
+      startIndex: 0
+    }
+  ]
+}
+[YOUTUBEJS][Text]: Unable to find matching run for command run. Skipping... {
+  command_run: { startIndex: 0, length: 92, onTap: { innertubeCommand: [Object] } },
+  input_data: {
+    content: 'KHÓC CHO NGƯỜI AI KHÓC CHO EM || HANA CẨM TIÊN x TVk || OFFICIAL MUSIC VIDEO · 4:37',
+    commandRuns: [ [Object] ]
+  },
+  parsed_runs: [
+    {
+      text: 'KHÓC CHO NGƯỜI AI KHÓC CHO EM || HANA CẨM TIÊN x TVk || OFFICIAL MUSIC VIDEO · 4:37',
+      startIndex: 0
+    }
+  ]
+}
+[YOUTUBEJS][Text]: Unable to find matching run for command run. Skipping... {
+  command_run: { startIndex: 0, length: 20, onTap: { innertubeCommand: [Object] } },
+  input_data: { content: 'Tủi Duyên · 3:41', commandRuns: [ [Object] ] },
+  parsed_runs: [ { text: 'Tủi Duyên · 3:41', startIndex: 0 } ]
+}
+[YOUTUBEJS][Text]: Unable to find matching run for command run. Skipping... {
+  command_run: { startIndex: 0, length: 33, onTap: { innertubeCommand: [Object] } },
+  input_data: { content: 'Thời Thế Thế Thời · 3:46', commandRuns: [ [Object] ] },
+  parsed_runs: [ { text: 'Thời Thế Thế Thời · 3:46', startIndex: 0 } ]
+}
+Player error: NoResultError: Could not extract stream for this track
+    at #throw (/opt/render/project/src/node_modules/discord-player/dist/index.js:3602:69)
+    at _GuildQueuePlayerNode.play (/opt/render/project/src/node_modules/discord-player/dist/index.js:3477:102)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.execute (/opt/render/project/src/commands/music/play.js:127:17)
+    at async Object.execute (/opt/render/project/src/events/interactionCreate.js:18:17) {
+  code: 'ERR_NO_RESULT',
+  timestamp: 1748465610687
+}
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+Player error: NoResultError: Could not extract stream for this track
+    at #throw (/opt/render/project/src/node_modules/discord-player/dist/index.js:3602:69)
+    at _GuildQueuePlayerNode.play (/opt/render/project/src/node_modules/discord-player/dist/index.js:3477:102)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.execute (/opt/render/project/src/commands/music/play.js:127:17)
+    at async Object.execute (/opt/render/project/src/events/interactionCreate.js:18:17) {
+  code: 'ERR_NO_RESULT',
+  timestamp: 1748465679422

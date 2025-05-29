@@ -62,14 +62,18 @@ module.exports = {
         }
 
         try {
-            const searchResult = await player.search(query, {
+            // Clean query to avoid special characters issues
+            const cleanQuery = query.replace(/[·|×]/g, ' ').trim();
+            
+            const searchResult = await player.search(cleanQuery, {
                 requestedBy: interaction.user,
-                searchEngine: QueryType.AUTO
+                searchEngine: QueryType.AUTO,
+                fallbackSearchEngine: QueryType.YOUTUBE_SEARCH
             });
 
             if (!searchResult || !searchResult.tracks.length) {
                 return interaction.editReply({
-                    embeds: [createErrorEmbed('No results found for your search!')]
+                    embeds: [createErrorEmbed('No results found for your search! Try using simpler keywords.')]
                 });
             }
 
@@ -124,16 +128,44 @@ module.exports = {
 
             // Start playing if not already playing
             if (!queue.node.isPlaying()) {
-                await queue.node.play();
+                try {
+                    await queue.node.play();
+                } catch (playError) {
+                    console.error('Play Error:', playError);
+                    
+                    // Handle specific YouTube extraction errors
+                    if (playError.message.includes('NoResultError') || playError.code === 'ERR_NO_RESULT') {
+                        return interaction.editReply({
+                            embeds: [createErrorEmbed(
+                                'Cannot extract audio stream',
+                                'This track is not available for playback. Try a different search term.'
+                            )]
+                        });
+                    }
+                    
+                    throw playError;
+                }
             }
 
         } catch (error) {
             console.error('Play command error:', error);
+            
+            // More specific error messages
+            let errorMessage = 'Failed to play music!';
+            let errorDescription = error.message;
+            
+            if (error.message.includes('age-restricted')) {
+                errorDescription = 'This content is age-restricted and cannot be played.';
+            } else if (error.message.includes('unavailable')) {
+                errorDescription = 'This content is unavailable in your region.';
+            } else if (error.message.includes('private')) {
+                errorDescription = 'This content is private and cannot be accessed.';
+            } else if (error.code === 'ERR_NO_RESULT') {
+                errorDescription = 'Cannot extract audio from this source. Try a different search.';
+            }
+            
             await interaction.editReply({
-                embeds: [createErrorEmbed(
-                    'Failed to play music!',
-                    error.message
-                )]
+                embeds: [createErrorEmbed(errorMessage, errorDescription)]
             });
         }
     }

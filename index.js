@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
-const { YoutubeiExtractor } = require('discord-player-youtubei');
+const { YouTubeExtractor } = require('@discord-player/extractor');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -59,12 +59,19 @@ const client = new Client({
 const player = new Player(client, {
     ytdlOptions: {
         quality: 'highestaudio',
-        highWaterMark: 1 << 25
-    }
+        highWaterMark: 1 << 25,
+        filter: 'audioonly'
+    },
+    skipFFmpeg: false
 });
 
-// Register extractors
-player.extractors.register(YoutubeiExtractor, {});
+// Register extractors with proper configuration
+player.extractors.register(YouTubeExtractor, {
+    authentication: process.env.YOUTUBE_COOKIE || undefined,
+    streamOptions: {
+        useClient: 'ANDROID'
+    }
+});
 
 // Store player instance on client for access in commands
 client.player = player;
@@ -165,14 +172,43 @@ player.events.on('emptyQueue', (queue) => {
 
 player.events.on('playerError', (queue, error) => {
     console.error('Player error:', error);
+    
     if (queue.metadata && queue.metadata.channel) {
+        let errorMsg = 'An error occurred while playing the track.';
+        
+        if (error.message.includes('NoResultError') || error.code === 'ERR_NO_RESULT') {
+            errorMsg = 'Cannot extract audio stream from this track.';
+        } else if (error.message.includes('age-restricted')) {
+            errorMsg = 'Track is age-restricted.';
+        } else if (error.message.includes('unavailable')) {
+            errorMsg = 'Track is unavailable.';
+        }
+        
         const embed = {
-            color: 0xff0000,
-            title: '❌ Playback Error',
-            description: 'An error occurred while playing the track. Skipping to next track...',
+            color: 0xff6b00,
+            title: '⚠️ Playback Error',
+            description: `${errorMsg} ${queue.tracks.size > 0 ? 'Skipping to next track...' : ''}`,
             timestamp: new Date()
         };
-        queue.metadata.channel.send({ embeds: [embed] });
+        
+        queue.metadata.channel.send({ embeds: [embed] }).then(message => {
+            setTimeout(() => {
+                if (message.deletable) {
+                    message.delete().catch(console.error);
+                }
+            }, 5000);
+        });
+    }
+    
+    // Auto-skip to next track if available
+    if (queue.tracks.size > 0) {
+        setTimeout(() => {
+            try {
+                queue.node.skip();
+            } catch (skipError) {
+                console.error('Auto-skip error:', skipError);
+            }
+        }, 1000);
     }
 });
 

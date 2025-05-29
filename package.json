@@ -10,8 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "opusscript": "^0.1.1",
-    "express": "^4.19.2",
+    "@discord-player/extractor": "^7.1.0",
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.18.0",
     "axios": "^1.9.0",
@@ -19,6 +18,7 @@
     "discord-player-youtubei": "^1.4.6",
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "ffmpeg-static": "^5.2.0"
   }
 }
