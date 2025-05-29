@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
-const { YouTubeExtractor } = require('@discord-player/extractor');
+const { DefaultExtractors } = require('@discord-player/extractor');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -71,30 +71,12 @@ client.player = player;
 // Initialize extractors after player is created
 async function initializeExtractors() {
     try {
-        // Load all default extractors including YouTube
-        await player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
-        
-        // Register YouTube extractor separately with configuration
-        await player.extractors.register(YouTubeExtractor, {
-            cookie: process.env.YOUTUBE_COOKIE,
-            language: 'en',
-            location: 'US'
-        });
-        
-        console.log('✅ All extractors registered successfully');
+        await player.extractors.loadMulti(DefaultExtractors);
+        console.log('✅ Extractors loaded successfully');
         console.log('📦 Available extractors:', player.extractors.size);
     } catch (error) {
         console.error('❌ Failed to register extractors:', error);
-        console.log('⚠️ Trying fallback extractor registration...');
-        
-        // Fallback: try to load only default extractors
-        try {
-            await player.extractors.loadDefault();
-            console.log('✅ Default extractors loaded successfully');
-        } catch (fallbackError) {
-            console.error('❌ Fallback registration also failed:', fallbackError);
-            console.log('⚠️ Bot will continue without extractors');
-        }
+        console.log('⚠️ Bot will continue without extractors');
     }
 }
 
