@@ -71,20 +71,30 @@ client.player = player;
 // Initialize extractors after player is created
 async function initializeExtractors() {
     try {
-        // Register YouTube extractor
+        // Load all default extractors including YouTube
+        await player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
+        
+        // Register YouTube extractor separately with configuration
         await player.extractors.register(YouTubeExtractor, {
-            authentication: process.env.YOUTUBE_COOKIE || undefined,
-            streamOptions: {
-                useClient: 'ANDROID',
-                clientName: 'ANDROID',
-                clientVersion: '17.31.35'
-            }
+            cookie: process.env.YOUTUBE_COOKIE,
+            language: 'en',
+            location: 'US'
         });
         
-        console.log('✅ YouTube extractor registered successfully');
+        console.log('✅ All extractors registered successfully');
+        console.log('📦 Available extractors:', player.extractors.size);
     } catch (error) {
         console.error('❌ Failed to register extractors:', error);
-        console.log('⚠️ Bot will continue without YouTube extractor');
+        console.log('⚠️ Trying fallback extractor registration...');
+        
+        // Fallback: try to load only default extractors
+        try {
+            await player.extractors.loadDefault();
+            console.log('✅ Default extractors loaded successfully');
+        } catch (fallbackError) {
+            console.error('❌ Fallback registration also failed:', fallbackError);
+            console.log('⚠️ Bot will continue without extractors');
+        }
     }
 }
 
