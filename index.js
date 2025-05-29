@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
-const { YoutubeiExtractor } = require('discord-player-youtubei');
+const { DefaultExtractors } = require('@discord-player/extractor');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -71,8 +71,7 @@ client.player = player;
 // Initialize extractors after player is created
 async function initializeExtractors() {
     try {
-        await player.extractors.register(YoutubeiExtractor, {});
-        await player.extractors.loadDefault();
+        await player.extractors.loadMulti(DefaultExtractors);
         console.log('✅ Extractors loaded successfully');
         console.log('📦 Available extractors:', player.extractors.size);
     } catch (error) {
