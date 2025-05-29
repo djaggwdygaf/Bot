@@ -65,16 +65,28 @@ const player = new Player(client, {
     skipFFmpeg: false
 });
 
-// Register extractors with proper configuration
-player.extractors.register(YouTubeExtractor, {
-    authentication: process.env.YOUTUBE_COOKIE || undefined,
-    streamOptions: {
-        useClient: 'ANDROID'
-    }
-});
-
 // Store player instance on client for access in commands
 client.player = player;
+
+// Initialize extractors after player is created
+async function initializeExtractors() {
+    try {
+        // Register YouTube extractor
+        await player.extractors.register(YouTubeExtractor, {
+            authentication: process.env.YOUTUBE_COOKIE || undefined,
+            streamOptions: {
+                useClient: 'ANDROID',
+                clientName: 'ANDROID',
+                clientVersion: '17.31.35'
+            }
+        });
+        
+        console.log('✅ YouTube extractor registered successfully');
+    } catch (error) {
+        console.error('❌ Failed to register extractors:', error);
+        console.log('⚠️ Bot will continue without YouTube extractor');
+    }
+}
 
 // Create commands collection
 client.commands = new Collection();
@@ -221,5 +233,21 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// Login
-client.login(process.env.DISCORD_TOKEN);
+// Initialize bot
+client.once('ready', async () => {
+    console.log('🤖 Bot is ready!');
+    await initializeExtractors();
+});
+
+// Login with error handling
+if (!process.env.DISCORD_TOKEN) {
+    console.error('❌ DISCORD_TOKEN not found in environment variables!');
+    console.log('📝 Please add your Discord bot token to the Secrets tab');
+    process.exit(1);
+}
+
+client.login(process.env.DISCORD_TOKEN).catch(error => {
+    console.error('❌ Failed to login:', error.message);
+    console.log('📝 Please check your DISCORD_TOKEN in the Secrets tab');
+    process.exit(1);
+});
